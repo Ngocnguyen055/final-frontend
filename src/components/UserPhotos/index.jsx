@@ -10,6 +10,7 @@ import { useParams, Link } from "react-router-dom";
 
 import fetchModel from "../../lib/fetchModelData";
 import "./styles.css";
+import {BASE_URL}  from "../../lib/fetchModelData";
 
 function UserPhotos() {
   const { userId } = useParams();
@@ -45,7 +46,7 @@ function UserPhotos() {
           <CardMedia
             component="img"
             height="300"
-            image={`/images/${photo.file_name}`}
+            image={`${BASE_URL}/images/${photo.file_name}`}
             alt="User Photo"
           />
 

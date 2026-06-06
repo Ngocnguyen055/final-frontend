@@ -1,70 +1,63 @@
 import React, { useState, useEffect } from "react";
-import { Typography, Paper, Button, Divider, CircularProgress, Box } from "@mui/material";
+import { Typography, Divider } from "@mui/material";
 import { useParams, Link } from "react-router-dom";
-import fetchModel from "../../lib/fetchModelData";
+import fetchModel from "../../lib/fetchModelData"; // Đảm bảo đường dẫn này đúng với project của bạn
+
 import "./styles.css";
 
+/**
+ * Define UserDetail, a React component of Project 4/5/6.
+ */
 function UserDetail() {
-    const { userId } = useParams();
+  const { userId } = useParams();
+  const [userDetails, setUserDetails] = useState(null);
 
-    // Thay vì gọi trực tiếp model, ta dùng state để lưu user data
-    // Khởi tạo là null (giống như cách bạn làm trang chi tiết BlogDetail)
-    const [user, setUser] = useState(null);
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await fetchModel(`/api/user/${userId}`);
+        console.log(response);
+        setUserDetails(response);
+      } catch (error) {
+        console.error("Lỗi khi lấy thông tin người dùng:", error);
+      }
+    };
 
-    // useEffect sẽ chạy lại mỗi khi userId trên URL thay đổi
-    useEffect(() => {
-        // Reset user về null khi đổi sang userId khác để hiển thị loading
-        setUser(null);
+    fetchUserData();
+  }, [userId]);
 
-        fetchModel(`/user/${userId}`)
-            .then(response => {
-                setUser(response.data);
-            })
-            .catch(error => {
-                console.error("Lỗi khi tải chi tiết user:", error);
-            });
-    }, [userId]);
+  if (!userDetails) {
+    return <Typography variant="body1">Loading user details...</Typography>;
+  }
 
-    // Hiển thị trạng thái loading khi chưa có dữ liệu
-    if (!user) {
-        return (
-            <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
-                <CircularProgress /> {/* Biểu tượng xoay xoay của MUI */}
-                <Typography style={{ marginLeft: '15px' }}>Đang tải thông tin...</Typography>
-            </Box>
-        );
-    }
+  return (
+    <div className="user-detail-container">
+      <Typography variant="h4" gutterBottom>
+        {userDetails.first_name} {userDetails.last_name}
+      </Typography>
 
-    return (
-        <Paper elevation={3} style={{ padding: '20px', margin: '20px 0' }}>
-            <Typography variant="h4" gutterBottom>
-                {user.first_name} {user.last_name}
-            </Typography>
+      <Divider style={{ margin: "10px 0" }} />
 
-            <Divider style={{ marginBottom: '15px' }} />
+      <Typography variant="body1">
+        <strong>Location:</strong> {userDetails.location}
+      </Typography>
+      <Typography variant="body1">
+        <strong>Description:</strong> {userDetails.description}
+      </Typography>
+      <Typography variant="body1">
+        <strong>Occupation:</strong> {userDetails.occupation}
+      </Typography>
 
-            <Typography variant="body1" gutterBottom>
-                <strong>Nghề nghiệp:</strong> {user.occupation}
-            </Typography>
-            <Typography variant="body1" gutterBottom>
-                <strong>Vị trí:</strong> {user.location}
-            </Typography>
-            <Typography variant="body1" gutterBottom>
-                <strong>Mô tả:</strong> {user.description}
-            </Typography>
+      <Divider style={{ margin: "10px 0" }} />
 
-            <div style={{ marginTop: '20px' }}>
-                <Button
-                    variant="contained"
-                    color="primary"
-                    component={Link}
-                    to={`/photos/${user._id}`}
-                >
-                    Xem ảnh của {user.first_name}
-                </Button>
-            </div>
-        </Paper>
-    );
+      {/* Thêm link để chuyển sang trang xem ảnh của user này */}
+      <Link to={`/photos/${userId}`}>
+        <Typography variant="button" color="primary">
+          View {userDetails.first_name}'s Photos
+        </Typography>
+      </Link>
+    </div>
+  );
 }
 
 export default UserDetail;

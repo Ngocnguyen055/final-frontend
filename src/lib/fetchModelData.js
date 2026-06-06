@@ -23,3 +23,4 @@ function fetchModel(path) {
 }
 
 export default fetchModel;
+export {BASE_URL};
